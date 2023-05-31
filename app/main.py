@@ -5,7 +5,8 @@ from .routers import post, user, auth, votes
 
 app: FastAPI = FastAPI(title="Test app")
 
-origins = ["*"]
+origins = ["http://localhost",
+           "http://localhost:8000"]
 
 app.add_middleware(
     CORSMiddleware, 
