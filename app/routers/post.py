@@ -1,6 +1,6 @@
 from fastapi import status, HTTPException, Depends, APIRouter, Response
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import func, select, update
+from sqlalchemy import func, select, update, delete
 from .. import schemas, models
 from .. database import get_db
 from .. oauth2 import get_current_user
@@ -67,12 +67,14 @@ async def delete_post(id: int, db: AsyncSession = Depends(get_db),
     query = select(models.Post).where(models.Post.id == id)
     
     async with db.begin():
+        
         delete_post = await db.execute(query)
+        
         data = delete_post.fetchone()
-        post: models.Post = data[0]
-        if post is None:
+        if data is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                                 detail=f"post with id: {id} was not found")
+        post: models.Post = data[0]
     
         if post.owner_id != curent_user.id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
